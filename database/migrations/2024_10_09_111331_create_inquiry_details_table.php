@@ -13,8 +13,10 @@ return new class extends Migration
     {
         Schema::create('inquiry_details', function (Blueprint $table) {
             $table->id();
+            $table->string('inquiry_no', 25)->nullable();
             $table->string('name', 255)->nullable();
             $table->string('mobile', 12)->nullable();
+            $table->string('vehicle_no', 255)->nullable();
             $table->bigInteger('service_type_id')->default(0);
             $table->bigInteger('status_id')->default(1);
             $table->dateTime('inquiry_date')->nullable();
