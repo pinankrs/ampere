@@ -16,7 +16,7 @@ class DashboardController extends Controller
     public function inquiryDetails(Request $request)
     {
         if ($request->ajax()) {
-            $inquiry = InquiryDetails::query();
+            $inquiry = InquiryDetails::query()->where('status_id', '1');
             return DataTables::of($inquiry)
                 ->addIndexColumn()
                 ->addColumn('action', function ($row) {
@@ -32,5 +32,16 @@ class DashboardController extends Controller
         }
 
         return view('inquiry');
+    }
+
+    public function changeStatus(Request $request)
+    {
+        $save = InquiryDetails::where('id', $request->id)->update(['status_id' => $request->statusId]);
+        if ($save) {
+            return response()->json(['code' => 1, 'message' => 'Status updated successfully']);
+        } else {
+            return response()->json(['code' => 0, 'message' => 'Failed to update status']);
+        }
+
     }
 }

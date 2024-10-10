@@ -41,22 +41,32 @@
             </div>
         </div>
     </div>
-    <div class="modal fade" id="statusModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
-        aria-hidden="true">
-        <div class="modal-dialog" role="document">
+    <div class="modal fade" id="statusModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true"
+        data-bs-backdrop="static">
+        <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="exampleModalLabel">Status</h5>
-                    <button type="button" class="btn btn-close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    ...
+                    <div class="row">
+                        <div class="col-md-12">
+                            <input type="hidden" id="statusInquiryId">
+                            <label>Status</label>
+                            <select class="form-select" id="statusId">
+                                <option value="">Select</option>
+                                <option value="2">Completed</option>
+                                <option value="3">Rejected</option>
+                                <option value="4">Confirmed</option>
+                            </select>
+                            <div class="status_error"></div>
+                        </div>
+                    </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary">Save changes</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="changeStatusBtn">Save changes</button>
                 </div>
             </div>
         </div>
@@ -122,8 +132,41 @@
 
         $(document).on('click', '.change-status', function() {
             let id = $(this).data('id');
+            $('#statusInquiryId').val(id);
+            $('#statusId').val('').trigger('change');
             $('#statusModal').modal('show');
+        });
 
+        $(document).on('click', '#changeStatusBtn', function() {
+            let id = $('#statusInquiryId').val();
+            let statusId = $('#statusId').val();
+
+            if (statusId == '') {
+                $('.status_error').html('Please select a status');
+                return false;
+            }
+
+            $.ajax({
+                url: '{{ route('inquiry.change-status') }}',
+                type: 'POST',
+                data: {
+                    _token: '{{ csrf_token() }}',
+                    id: id,
+                    statusId: statusId
+                },
+                success: async function(response) {
+                    if (response.code == '1') {
+                        $('#statusModal').modal('hide');
+                        await inquiryDetails();
+                    } else {
+                        alert(response.message);
+                    }
+                }
+            });
+        });
+
+        $(document).on('change', '#statusId', function() {
+            $('.status_error').html('');
         });
     </script>
 @endsection

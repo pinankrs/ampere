@@ -26,4 +26,5 @@ Route::group(['middleware' => 'guest'], function () {
 Route::middleware(['auth'])->group(function () {
     Route::get('dashboard', [DashboardController::class, 'dashboard'])->name('dashboard');
     Route::get('inquiry', [DashboardController::class, 'inquiryDetails'])->name('inquiry');
+    Route::post('change-status', [DashboardController::class, 'changeStatus'])->name('inquiry.change-status');
 });
