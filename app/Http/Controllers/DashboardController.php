@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\InquiryDetails;
+use App\Models\SystemLogs;
 use Illuminate\Http\Request;
 use Yajra\DataTables\Facades\DataTables;
 
@@ -38,6 +39,12 @@ class DashboardController extends Controller
     {
         $save = InquiryDetails::where('id', $request->id)->update(['status_id' => $request->statusId]);
         if ($save) {
+            SystemLogs::create([
+                'inquiry_id' => $request->id,
+                'remark' => 'Status changed to ' . $this->getArrayNameById($this->statusArray, $request->statusId),
+                'action_id' => 3,
+                'created_by' => auth()->id(),
+            ]);
             return response()->json(['code' => 1, 'message' => 'Status updated successfully']);
         } else {
             return response()->json(['code' => 0, 'message' => 'Failed to update status']);
