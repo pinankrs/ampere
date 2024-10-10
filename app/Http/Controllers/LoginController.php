@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class LoginController extends Controller
 {
@@ -28,4 +29,11 @@ class LoginController extends Controller
             return redirect()->back()->withInput()->withError('Invalid Credentials !!!');
         }
     }
+
+    public function logout()
+    {
+        Auth::logout();
+        return redirect()->route('auth.show-login');
+    }
+
 }

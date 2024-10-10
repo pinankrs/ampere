@@ -5,13 +5,25 @@ namespace App\Http\Controllers;
 use App\Models\InquiryDetails;
 use App\Models\SystemLogs;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Yajra\DataTables\Facades\DataTables;
 
 class DashboardController extends Controller
 {
     public function dashboard()
     {
-        return view('dashboard');
+        $inquiryCounts = InquiryDetails::select('status_id', DB::raw('count(*) as count'))
+            ->whereIn('status_id', [1, 2, 3, 4])
+            ->groupBy('status_id')
+            ->pluck('count', 'status_id')
+            ->toArray();
+
+        $pendingInquiry = $inquiryCounts[1] ?? 0;
+        $completeInquiry = $inquiryCounts[2] ?? 0;
+        $rejectedInquiry = $inquiryCounts[3] ?? 0;
+        $confirmInquiry = $inquiryCounts[4] ?? 0;
+        
+        return view('dashboard')->with(compact('pendingInquiry', 'completeInquiry', 'rejectedInquiry', 'confirmInquiry'));
     }
 
     public function inquiryDetails(Request $request)

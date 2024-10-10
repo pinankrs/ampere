@@ -36,7 +36,7 @@
                 </ul> <!--end::Start Navbar Links--> <!--begin::End Navbar Links-->
 
                 <ul class="navbar-nav ms-auto"> <!--begin::Navbar Search-->
-                    <a href="#" class="btn btn-outline-primary">{{ Str::ucfirst(Auth::user()->name) }} &nbsp;<i
+                    <a href="{{ route('auth.logout') }}" class="btn btn-outline-primary">{{ Str::ucfirst(Auth::user()->name) }} &nbsp;<i
                             class="nav-icon bi bi-box-arrow-in-right"></i></a>
                 </ul> <!--end::End Navbar Links-->
             </div> <!--end::Container-->
