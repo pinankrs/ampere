@@ -27,7 +27,6 @@
                                 <div class="col-md-3">
                                     <label>Status</label>
                                     <select class="form-select" id="searchStatusId">
-                                        <option value="">Select</option>
                                         <option value="1">Pending</option>
                                         <option value="2">Completed</option>
                                         <option value="3">Rejected</option>
@@ -120,8 +119,8 @@
             locale: {
                 format: 'DD-MM-YYYY'
             },
-            startDate: moment(),
-            endDate: moment().add(7, 'days')
+            startDate: moment().startOf('month'),
+            endDate: moment().endOf('month')
         });
 
         $(document).on('click', '#searchReport', async function() {
