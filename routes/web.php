@@ -28,4 +28,5 @@ Route::middleware(['auth'])->group(function () {
     Route::get('inquiry', [DashboardController::class, 'inquiryDetails'])->name('inquiry');
     Route::get('logout', [LoginController::class, 'logout'])->name('auth.logout');
     Route::post('change-status', [DashboardController::class, 'changeStatus'])->name('inquiry.change-status');
+    Route::post('export-inquiry', [DashboardController::class, 'export'])->name('user.inquiry.excel.export');
 });

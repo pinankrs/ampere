@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\InquiryDetailsExport;
 use App\Models\InquiryDetails;
 use App\Models\SystemLogs;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Maatwebsite\Excel\Facades\Excel;
 use Yajra\DataTables\Facades\DataTables;
 
 class DashboardController extends Controller
@@ -33,7 +35,7 @@ class DashboardController extends Controller
 
             if (isset($request->actionType) && $request->actionType == 'report') {
                 if (!empty($request->startDate) && !empty($request->endDate)) {
-                    $inquiry = $inquiry->whereBetween('created_at', [$this->formatDateTime('Y-m-d', $request->startDate), $this->formatDateTime('Y-m-d', $request->endDate)]);
+                    $inquiry = $inquiry->whereBetween(DB::raw('DATE(created_at)'), [$request->startDate, $request->endDate]);
                 }
 
                 if (!empty($request->statusId)) {
@@ -46,15 +48,40 @@ class DashboardController extends Controller
             //return dd($inquiry->toRawSql());
             return DataTables::of($inquiry)
                 ->addIndexColumn()
-                ->addColumn('action', function ($row) {
-                    return '<div class="btn-group"> <button type="button" class="btn btn-light dropdown-toggle"
-                                style="--bs-btn-padding-y: .25rem; --bs-btn-padding-x: .5rem; --bs-btn-font-size: .75rem;"
-                                data-bs-toggle="dropdown" aria-expanded="false"> Action </button>
-                            <ul class="dropdown-menu" style="font-size: 0.75rem; padding: 0.25rem 0.5rem;">
-                                <li> <a class="dropdown-item change-status" data-id="' . $row->id . '" href="javascript:void(0);">Status</a></li>
-                            </ul>
-                        </div>';
+                ->addColumn('display_status', function ($row) {
+                    $class = 'warning';
+                    if ($row->status_id == '2') {
+                        $class = 'success';
+                    } else if ($row->status_id == '3') {
+                        $class = 'danger';
+                    } else if ($row->status_id == '4') {
+                        $class = 'info';
+                    }
+
+                    $html = '<span class="badge text-bg-' . $class . '">' . $this->getArrayNameById($this->statusArray, $row->status_id) . '</span>';
+                    if ($row->status_id == '4') {
+                        $html .= '<br><span class="link-primary">' . $this->formatDateTime('d M, Y h:i A', $row->confirm_date) . '</span>';
+                    }
+                    return $html;
                 })
+                ->addColumn('display_inquiry_date', function ($row) {
+                    return $this->formatDateTime('d M, Y h:i A', $row->created_at);
+                })
+                ->addColumn('action', function ($row) {
+                    if ($row->status_id == '1') {
+                        return '<div class="btn-group"> <button type="button" class="btn btn-light dropdown-toggle"
+                                    style="--bs-btn-padding-y: .25rem; --bs-btn-padding-x: .5rem; --bs-btn-font-size: .75rem;"
+                                    data-bs-toggle="dropdown" aria-expanded="false"> Action </button>
+                                <ul class="dropdown-menu" style="font-size: 0.75rem; padding: 0.25rem 0.5rem;">
+                                    <li> <a class="dropdown-item change-status" data-id="' . $row->id . '" href="javascript:void(0);">Status</a></li>
+                                </ul>
+                            </div>';
+                    } else {
+                        return '';
+                    }
+
+                })
+                ->rawColumns(['display_status', 'action', 'display_inquiry_date'])
                 ->make(true);
         }
 
@@ -99,5 +126,18 @@ class DashboardController extends Controller
             return response()->json(['code' => 0, 'message' => 'Failed to update status']);
         }
 
+    }
+
+    public function export(Request $request)
+    {
+        try {    
+            $exportStartDate = $request->input('exportStartDate');
+            $exportEndDate = $request->input('exportEndDate');
+            $exportStatusId = $request->input('exportStatusId', '');
+           // dd($exportStartDate, $exportEndDate, $exportStatusId);
+            return Excel::download(new InquiryDetailsExport($exportStartDate, $exportEndDate, $exportStatusId), 'inquiry.xlsx');
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
     }
 }

@@ -17,6 +17,17 @@
                     <div class="card mb-4">
                         <div class="card-header">
                             <h5 class="card-title">Inquiry</h5>
+                            <div class="d-flex justify-content-end">
+                                <a href="javascript:void(0);" class="btn btn-primary btn-sm d-none" id="exportExcel">
+                                    <form action="{{ route('user.inquiry.excel.export') }}" method="POST" id="exportExcelForm">
+                                        @csrf
+                                        {{ Form::hidden('exportStartDate', null, ['id' => 'exportStartDate']) }}
+                                        {{ Form::hidden('exportEndDate', null, ['id' => 'exportEndDate']) }}
+                                        {{ Form::hidden('exportStatusId', 0, ['id' => 'exportStatusId']) }}
+                                        <i class="bi bi-cloud-download me-1 align-middle me-1"></i> Export
+                                    </form>
+                                </a>
+                            </div>
                         </div>
                         <div class="card-body">
                             <div class="row">
@@ -27,6 +38,7 @@
                                 <div class="col-md-3">
                                     <label>Status</label>
                                     <select class="form-select" id="searchStatusId">
+                                        <option value="0">All</option>
                                         <option value="1">Pending</option>
                                         <option value="2">Completed</option>
                                         <option value="3">Rejected</option>
@@ -37,16 +49,19 @@
                                     <button type="button" class="btn btn-primary" id="searchReport">Search</button>
                                 </div>
                             </div>
+                            <hr>
                             <div class="row mt-3">
                                 <table class="table table-bordered table-striped dt-responsive nowrap" style="width:100%"
                                     id="inquiryTable">
                                     <thead>
                                         <tr>
                                             <th style="text-align: left;">Sr. No</th>
+                                            <th style="text-align: left;">Inq Date.</th>
                                             <th style="text-align: left;">Inq No.</th>
                                             <th style="text-align: left;">Name</th>
                                             <th style="text-align: left;">Mobile</th>
                                             <th style="text-align: left;">Vehicle No</th>
+                                            <th style="text-align: left;">Status</th>
                                             <th style="text-align: left;">Action</th>
                                         </tr>
                                     </thead>
@@ -128,6 +143,10 @@
             let endDate = $('#datePeriod').data('daterangepicker').endDate.format('YYYY-MM-DD');
             let statusId = $('#searchStatusId').val();
 
+            $('#exportStartDate').val(startDate);
+            $('#exportEndDate').val(endDate);
+            $('#exportStatusId').val(statusId);
+
             let data = {
                 actionType: 'report',
                 startDate: startDate,
@@ -135,6 +154,7 @@
                 statusId: statusId
             };
             await inquiryDetails(data);
+            $('#exportExcel').removeClass('d-none');
         });
 
         async function inquiryDetails(filters = []) {
@@ -155,6 +175,10 @@
                         searchable: false
                     },
                     {
+                        data: 'display_inquiry_date',
+                        name: 'created_at'
+                    },
+                    {
                         data: 'inquiry_no',
                         name: 'inquiry_no'
                     },
@@ -171,12 +195,16 @@
                         name: 'vehicle_no'
                     },
                     {
+                        data: 'display_status',
+                        name: 'display_status'
+                    },
+                    {
                         data: 'action',
                         name: 'action'
                     },
                 ],
                 order: [
-                    [1, 'desc']
+                    [0, 'desc']
                 ],
                 createdRow: function(row, data, index) {
                     $('td', row).eq(0).css('text-align', 'left');
@@ -239,6 +267,10 @@
             } else {
                 $('#confirmDIv').addClass('d-none');
             }
+        });
+
+        $(document).on('click', '#exportExcel', function() {
+            $('#exportExcelForm').submit();
         });
     </script>
 @endsection
