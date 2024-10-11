@@ -13,15 +13,21 @@
         content="bootstrap 5, bootstrap, bootstrap 5 admin dashboard, bootstrap 5 dashboard, bootstrap 5 charts, bootstrap 5 calendar, bootstrap 5 datepicker, bootstrap 5 tables, bootstrap 5 datatable, vanilla js datatable, colorlibhq, colorlibhq dashboard, colorlibhq admin dashboard">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/source-sans-3@5.0.12/index.css"
         integrity="sha256-tXJfXfp6Ewt1ilPzLDtQnJV4hclT9XuaZUKyUvmyr+Q=" crossorigin="anonymous">
+
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/overlayscrollbars@2.3.0/styles/overlayscrollbars.min.css"
         integrity="sha256-dSokZseQNT08wYEWiz5iLI8QPlKxG+TswNRD8k35cpg=" crossorigin="anonymous">
+
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.min.css"
         integrity="sha256-Qsx5lrStHZyR9REqhUF8iQt73X06c8LGIUPzpOhwRrI=" crossorigin="anonymous">
+
     <link rel="stylesheet" href="{{ asset('../../dist/css/adminlte.css') }}">
 
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.10.21/css/dataTables.bootstrap4.min.css">
+    {{-- <link rel="stylesheet" href="https://cdn.datatables.net/1.10.21/css/dataTables.bootstrap4.min.css"> --}}
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.datatables.net/2.1.8/css/dataTables.bootstrap4.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/responsive/3.0.3/css/responsive.bootstrap4.css">
 
-    <link href="{{ asset('../../dist/css/datatables.min.css') }}" rel="stylesheet">
+    {{-- <link href="{{ asset('../../dist/css/datatables.min.css') }}" rel="stylesheet"> --}}
     @yield('css')
 </head>
 
@@ -36,7 +42,8 @@
                 </ul> <!--end::Start Navbar Links--> <!--begin::End Navbar Links-->
 
                 <ul class="navbar-nav ms-auto"> <!--begin::Navbar Search-->
-                    <a href="{{ route('auth.logout') }}" class="btn btn-outline-primary">{{ Str::ucfirst(Auth::user()->name) }} &nbsp;<i
+                    <a href="{{ route('auth.logout') }}"
+                        class="btn btn-outline-primary">{{ Str::ucfirst(Auth::user()->name) }} &nbsp;<i
                             class="nav-icon bi bi-box-arrow-in-right"></i></a>
                 </ul> <!--end::End Navbar Links-->
             </div> <!--end::Container-->
@@ -69,7 +76,6 @@
             @yield('content')
         </main> <!--end::App Main--> <!--begin::Footer-->
         <footer class="app-footer"> <!--begin::To the end-->
-            <div class="float-end d-none d-sm-inline">Anything you want</div> <!--end::To the end-->
             <!--begin::Copyright--> <strong>
                 Copyright &copy; 2014-2024&nbsp;
                 <a href="https://adminlte.io" class="text-decoration-none">AdminLTE.io</a>.
@@ -80,7 +86,7 @@
     </div> <!--end::App Wrapper--> <!--begin::Script--> <!--begin::Third Party Plugin(OverlayScrollbars)-->
     <script src="{{ asset('../../dist/js/jquery-3.6.0.min.js') }}"
         integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
-    <script src="{{ asset('../../dist/js/datatables.min.js') }}"></script>
+    {{-- <script src="{{ asset('../../dist/js/datatables.min.js') }}"></script> --}}
 
     <script src="{{ asset('../../dist/js/bootstrap.bundle.min.js') }}"></script>
 
@@ -92,6 +98,10 @@
     <!--end::Required Plugin(popperjs for Bootstrap 5)--><!--begin::Required Plugin(Bootstrap 5)-->
 
     <script src="{{ asset('../../dist/js/adminlte.js') }}"></script> <!--end::Required Plugin(AdminLTE)--><!--begin::OverlayScrollbars Configure-->
+
+    <script src="https://cdn.datatables.net/2.1.8/js/dataTables.js"></script>
+    <script src="https://cdn.datatables.net/2.1.8/js/dataTables.bootstrap4.js"></script>
+
     <script>
         const SELECTOR_SIDEBAR_WRAPPER = ".sidebar-wrapper";
         const Default = {

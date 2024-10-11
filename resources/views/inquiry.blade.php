@@ -4,6 +4,11 @@
     AMPERE
 @endsection
 
+@section('css')
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
+@endsection
+
 @section('content')
     <div class="app-content-header">
         <div class="container-fluid">
@@ -12,28 +17,44 @@
                     <div class="card mb-4">
                         <div class="card-header">
                             <h5 class="card-title">Inquiry</h5>
-
                         </div>
                         <div class="card-body">
                             <div class="row">
-                                <div class="table-responsive">
-                                    <table class="table table-bordered dt-responsive nowrap table-striped"
-                                        style="width:100%" id="inquiryTable">
-                                        <thead>
-                                            <tr>
-                                                <th style="text-align: left;">Sr. No</th>
-                                                <th style="text-align: left;">Inq No.</th>
-                                                <th style="text-align: left;">Name</th>
-                                                <th style="text-align: left;">Mobile</th>
-                                                <th style="text-align: left;">Vehicle No</th>
-                                                <th style="text-align: left;">Action</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-
-                                        </tbody>
-                                    </table>
+                                <div class="col-md-3">
+                                    <label>Date</label>
+                                    <input type="text" id="datePeriod" class="form-control">
                                 </div>
+                                <div class="col-md-3">
+                                    <label>Status</label>
+                                    <select class="form-select" id="searchStatusId">
+                                        <option value="">Select</option>
+                                        <option value="1">Pending</option>
+                                        <option value="2">Completed</option>
+                                        <option value="3">Rejected</option>
+                                        <option value="4">Confirmed</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-2" style="margin-top: 31px;">
+                                    <button type="button" class="btn btn-primary" id="searchReport">Search</button>
+                                </div>
+                            </div>
+                            <div class="row mt-3">
+                                <table class="table table-bordered table-striped dt-responsive nowrap" style="width:100%"
+                                    id="inquiryTable">
+                                    <thead>
+                                        <tr>
+                                            <th style="text-align: left;">Sr. No</th>
+                                            <th style="text-align: left;">Inq No.</th>
+                                            <th style="text-align: left;">Name</th>
+                                            <th style="text-align: left;">Mobile</th>
+                                            <th style="text-align: left;">Vehicle No</th>
+                                            <th style="text-align: left;">Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
                     </div>
@@ -62,6 +83,10 @@
                             </select>
                             <div class="status_error"></div>
                         </div>
+                        <div class="col-md-12 d-none mt-3" id="confirmDIv">
+                            <label>Date</label>
+                            <input type="text" id="confirmDate" class="form-control">
+                        </div>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -73,12 +98,47 @@
     </div>
 @endsection
 @section('javascript')
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
     <script>
         $(document).ready(async function() {
             await inquiryDetails();
         });
 
-        async function inquiryDetails() {
+        flatpickr("#confirmDate", {
+            enableTime: true,
+            dateFormat: "d-m-Y H:i",
+            time_24hr: false,
+            defaultDate: new Date().setHours(9, 0)
+        });
+
+        $('#datePeriod').daterangepicker({
+            timePicker: false,
+            timePicker24Hour: true,
+            timePickerIncrement: 1,
+            locale: {
+                format: 'DD-MM-YYYY'
+            },
+            startDate: moment(),
+            endDate: moment().add(7, 'days')
+        });
+
+        $(document).on('click', '#searchReport', async function() {
+            let startDate = $('#datePeriod').data('daterangepicker').startDate.format('YYYY-MM-DD');
+            let endDate = $('#datePeriod').data('daterangepicker').endDate.format('YYYY-MM-DD');
+            let statusId = $('#searchStatusId').val();
+
+            let data = {
+                actionType: 'report',
+                startDate: startDate,
+                endDate: endDate,
+                statusId: statusId
+            };
+            await inquiryDetails(data);
+        });
+
+        async function inquiryDetails(filters = []) {
             $('#inquiryTable').DataTable({
                 serverSide: true,
                 processing: true,
@@ -87,6 +147,7 @@
                 scrollX: true,
                 ajax: {
                     url: '{{ route('inquiry') }}',
+                    data: filters
                 },
                 columns: [{
                         data: 'DT_RowIndex',
@@ -146,13 +207,19 @@
                 return false;
             }
 
+            let confirmDate = '';
+            if (statusId == '4') {
+                confirmDate = $('#confirmDate').val();
+            }
+
             $.ajax({
                 url: '{{ route('inquiry.change-status') }}',
                 type: 'POST',
                 data: {
                     _token: '{{ csrf_token() }}',
                     id: id,
-                    statusId: statusId
+                    statusId: statusId,
+                    confirmDate: confirmDate
                 },
                 success: async function(response) {
                     if (response.code == '1') {
@@ -167,6 +234,12 @@
 
         $(document).on('change', '#statusId', function() {
             $('.status_error').html('');
+
+            if ($(this).val() === '4') {
+                $('#confirmDIv').removeClass('d-none');
+            } else {
+                $('#confirmDIv').addClass('d-none');
+            }
         });
     </script>
 @endsection

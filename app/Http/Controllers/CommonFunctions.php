@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\SystemLogs;
+use Illuminate\Support\Facades\Http;
 
 trait CommonFunctions
 {
@@ -125,5 +126,26 @@ trait CommonFunctions
         return response()->json($returnArray, 400);
     }
 
+    public function sendWhatsAppMessage($mobileNumber, $message)
+    {
+        $url = "https://wa.smsidea.com/api/v1/sendMessage";
+        $whatsAppAPIKey = '694904390fe0404d8875b34a86951d16';
+
+        $data = [
+            'key' => $whatsAppAPIKey,
+            'to' => '91' . $mobileNumber,
+            'message' => $message,
+            'isUrgent' => true,
+        ];
+        $response = Http::post($url, $data);
+        if ($response->successful()) {
+            $responseDecode = $response->json();
+            if ($responseDecode['ErrorCode'] === '000') {
+                return true;
+            } else {
+                return false;
+            }
+        }
+    }
   
 }
