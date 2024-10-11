@@ -21,5 +21,6 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 Route::prefix('v1')->group(function () {
     Route::post('add-inquiry', [InquiryDetailsController::class, 'addInquiry']);
+    Route::post('run-artisan', [InquiryDetailsController::class, 'runArtisan']);
 
 });
